@@ -1,3 +1,5 @@
+![Banner](banner.png)
+
 # arte-Executable-Header-Fuzzer
 Fuzzes the executable header of a given file to test for parsing vulnerabilities in emulators. Uses a combination of bit-flipping, random value injection, and header field manipulation based on known PE/ELF/Mach-O header structures. Reports any crashes or unexpected behavior observed during emulation (using a simple subprocess call to an emulator like QEMU). - Focused on Tools designed to dynamically emulate and analyze potentially malicious artifacts like shellcode, PE files, or other encoded payloads in a sandboxed environment for behavior analysis and threat assessment.
 
