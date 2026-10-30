@@ -5,8 +5,6 @@ import logging
 import os
 import subprocess
 import random
-import lief
-import pefile
 import sys
 
 # Configure logging
@@ -21,7 +19,7 @@ def setup_argparse():
     parser.add_argument("-e", "--emulator", default="qemu-system-x86_64", help="Path to the emulator executable. Defaults to qemu-system-x86_64.")
     parser.add_argument("-o", "--output_dir", default="fuzzed_files", help="Directory to store the fuzzed files. Defaults to fuzzed_files.")
     parser.add_argument("-i", "--iterations", type=int, default=10, help="Number of fuzzing iterations. Defaults to 10.")
-    parser.add_argument("-f", "--fuzz_factor", type=float, default=0.01, help="Percentage of bytes to fuzz (0.01 = 1%). Defaults to 0.01.")
+    parser.add_argument("-f", "--fuzz_factor", type=float, default=0.01, help="Percentage of bytes to fuzz (0.01 = 1%%). Defaults to 0.01.")
     parser.add_argument("--seed", type=int, help="Seed for the random number generator. If not provided, a random seed is used.")
     return parser
 
@@ -70,6 +68,9 @@ def fuzz_header(input_file, output_file, fuzz_factor, seed=None):
         num_bytes_to_fuzz = int(file_size * fuzz_factor)
 
         if seed is not None:
+            # The caller passes seed + iteration number. Seeding with the
+            # same value on every call replays the same random sequence,
+            # so every fuzzed file in a run came out byte identical.
             random.seed(seed)
 
         for _ in range(num_bytes_to_fuzz):
@@ -128,8 +129,23 @@ def main():
     if not is_executable(args.input_file):
         logging.warning("Input file might not be a valid executable. Continuing with caution.")
 
-    if not os.path.exists(args.emulator):
-        logging.error(f"Emulator not found at path: {args.emulator}")
+    # The default emulator value is a bare program name, not a path, so an
+    # os.path.exists check on it fails even when the program is installed
+    # and on PATH. Names without a separator go through shutil.which.
+    import shutil
+    if os.sep in args.emulator:
+        emulator_ok = os.path.exists(args.emulator)
+    else:
+        emulator_ok = shutil.which(args.emulator) is not None
+    if not emulator_ok:
+        logging.error(f"Emulator not found: {args.emulator}")
+        sys.exit(1)
+
+    if args.iterations < 1:
+        logging.error("Iterations must be at least 1.")
+        sys.exit(1)
+    if not 0 < args.fuzz_factor <= 1:
+        logging.error("Fuzz factor must be greater than 0 and at most 1.")
         sys.exit(1)
 
     try:
@@ -150,7 +166,7 @@ def main():
         output_file = os.path.join(args.output_dir, f"fuzzed_{i}.bin")
         logging.info(f"Fuzzing iteration: {i + 1}/{args.iterations}")
 
-        if not fuzz_header(args.input_file, output_file, args.fuzz_factor, seed=seed):
+        if not fuzz_header(args.input_file, output_file, args.fuzz_factor, seed=seed + i):
             logging.error(f"Fuzzing iteration {i+1} failed.")
             continue
 
