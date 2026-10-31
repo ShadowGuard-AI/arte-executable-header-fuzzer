@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import math
 import os
 import subprocess
 import random
@@ -65,7 +66,14 @@ def fuzz_header(input_file, output_file, fuzz_factor, seed=None):
             original_data = bytearray(f.read())
 
         file_size = len(original_data)
-        num_bytes_to_fuzz = int(file_size * fuzz_factor)
+        # Round up with a minimum of one byte whenever the factor is above
+        # zero. int(file size * factor) rounds to zero for small files at
+        # small factors (any file under 100 bytes at the default 0.01),
+        # which saved byte identical copies while reporting success.
+        if fuzz_factor > 0 and file_size > 0:
+            num_bytes_to_fuzz = max(1, math.ceil(file_size * fuzz_factor))
+        else:
+            num_bytes_to_fuzz = 0
 
         if seed is not None:
             # The caller passes seed + iteration number. Seeding with the
