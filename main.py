@@ -82,7 +82,12 @@ def fuzz_header(input_file, output_file, fuzz_factor, seed=None):
             random.seed(seed)
 
         for _ in range(num_bytes_to_fuzz):
-            # Choose a random byte to fuzz
+            # The index ranges over the whole file, not the header this
+            # tool is named for. On a large binary nearly every mutation
+            # lands in the body, so what runs is a whole file mutator
+            # whose header hits are a small fraction of the total. The
+            # count is also a count of attempts: the same index can be
+            # drawn twice, and the second draw can flip a bit back.
             index = random.randint(0, file_size - 1)
             # Choose a random operation: bit flip or random byte injection
             operation = random.choice(["bit_flip", "random_byte"])
@@ -118,6 +123,10 @@ def run_emulator(emulator_path, file_path):
 
     except FileNotFoundError:
         logging.error(f"Emulator not found at path: {emulator_path}")
+        # Timeout, not found, and the generic failure below all return
+        # the same minus one, so main's non-zero check cannot tell a
+        # hang from a launch error; both read as possible crash in its
+        # warning. The stderr string is the only place they differ.
         return -1, "", "Emulator not found"
     except Exception as e:
         logging.error(f"Error running emulator: {e}")
@@ -179,6 +188,12 @@ def main():
             continue
 
         logging.info(f"Running emulator with fuzzed file: {output_file}")
+        # The fuzzed file is passed as a bare argument, with no flags
+        # telling the emulator what to do with it. For qemu-system that
+        # means it is treated as a disk image, and a non-zero exit can
+        # be the emulator objecting to its arguments rather than the
+        # fuzzed header doing anything. Nothing is saved per crash
+        # beyond the fuzzed file itself and these log lines.
         return_code, stdout, stderr = run_emulator(args.emulator, output_file)
 
         logging.info(f"Emulator finished with return code: {return_code}")
