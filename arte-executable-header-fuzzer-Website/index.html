@@ -3,164 +3,93 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Arte Executable Header Fuzzer: what it is, how it runs, where it stops</title>
-<meta name="description" content="Arte Executable Header Fuzzer is one of my projects. The README in the repo is short, so this page sticks to what the files themselves show.">
+<title>arte-executable-header-fuzzer: Ornithology Banding Station Mist Nets</title>
+<meta name="description" content="Fuzzes a given file to test for parsing vulnerabilities in emulators, mutating bytes across the whole file.">
 <style>
-:root {
-  --bg: #0e2a22; --panel: #14382d; --ink: #eef0e2;
-  --mut: #1b4b3c;
-  --acc: #f4d06f; --acc2: #ec8a7a;
-  --line: #14382d;
-}
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink);
-  font-family: 'Trebuchet MS', sans-serif; line-height: 1.55; }
-code, pre, .mono { font-family: 'Courier New', monospace; }
-a { color: var(--acc2); }
-.hero { padding: 3rem 6vw 1rem; }
-.hero img.banner { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; }
-.logo { width: 92px; height: 92px; border-radius: 18px;
-  border: 1px solid var(--line); }
-h1 { font-size: 2.4rem; margin: 0.4em 0 0.1em; }
-h2 { border-bottom: 2px solid var(--acc); padding-bottom: 0.2em;
-  margin-top: 2em; }
-.lede { font-size: 1.15rem; max-width: 62ch; }
-main { padding: 0 6vw 3rem; max-width: 1180px; margin: 0 auto; }
-.grid { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
-.card { background: var(--panel); border: 1px solid var(--line);
-  border-radius: 12px; padding: 1rem 1.2rem; }
-.card.pop { animation: rise 0.7s ease both; }
-@keyframes rise { from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; } }
-pre.code { background: #101014; color: #e8e6df; padding: 1rem 1.2rem;
-  border-radius: 12px; overflow-x: auto; font-size: 0.86rem;
-  border-left: 5px solid var(--acc); }
-table { border-collapse: collapse; width: 100%; }
-td, th { border-bottom: 1px solid var(--line); padding: 0.45rem 0.6rem;
-  text-align: left; }
-.shots { display: grid; gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-.shots img { width: 100%; height: auto; border: 1px solid var(--line);
-  border-radius: 10px; background: #f4f1e8; }
-footer { padding: 2rem 6vw; border-top: 1px solid var(--line);
-  color: var(--mut); }
-.rail { display: flex; gap: 1.2rem; align-items: flex-start; }
-.rail nav { position: sticky; top: 1rem; min-width: 180px; }
-@media (max-width: 760px) { .rail { flex-direction: column; }
-  .rail nav { position: static; } }
-@media (prefers-reduced-motion: reduce) {
-  .card.pop { animation: none; } * { scroll-behavior: auto; } }
+@font-face{font-family:'Digital Numbers';src:url('fonts/DigitalNumbers.ttf') format('truetype');}
+@font-face{font-family:'Barlow';src:url('fonts/Barlow.ttf') format('truetype');}
+:root{--khaki:#4c4a34;--khaki2:#3a3828;--ruled:#b9cfe6;--ruledp:#dbe7f4;--rust:#a85432;--pencil:#33322c;--paper:#efece0}
+*{box-sizing:border-box}body{margin:0;background:var(--khaki2);color:var(--paper);font-family:'Barlow',sans-serif;line-height:1.65}
+h1,h2,h3{font-family:'Digital Numbers',monospace;color:var(--pencil)}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;background:var(--khaki)}
+.hero img.heroimg{width:100%;height:58vh;object-fit:cover;display:block}
+.hero .in{padding:1rem 6vw 2rem;max-width:1120px;margin:0 auto;width:100%}
+.hero h1{color:var(--paper);font-size:1.7rem;word-break:break-all}
+.logo{width:200px;border:3px solid var(--rust)}
+main{padding:0 6vw 3rem;max-width:1120px;margin:0 auto}
+nav{display:flex;gap:.8rem;flex-wrap:wrap;margin:1.2rem 0}
+.tab{display:inline-block;text-decoration:none;color:var(--pencil);font-family:'Digital Numbers',monospace;font-size:.85rem;padding:.5rem 1rem;background:repeating-linear-gradient(var(--ruledp) 0 22px,#c3d6ec 22px 23px);border-left:6px solid var(--rust);transition:transform .08s}
+.tab:hover{text-decoration:underline;text-decoration-color:var(--rust);text-decoration-thickness:2px}
+.tab:active{transform:translateY(6px)}
+.tab:focus-visible{outline:3px solid #7ea6cf;outline-offset:2px}
+.bag{background:linear-gradient(#d8d0ae,#cfc7a4);color:var(--pencil);border-radius:4px;padding:1.6rem 1.5rem 1.2rem;margin:1.8rem 0;position:relative;box-shadow:inset 0 0 0 1px #a89f78}
+.bag::before{content:'';position:absolute;top:0;left:42%;right:42%;height:14px;background:#b3aa84;border-radius:0 0 8px 8px;box-shadow:0 2px 0 #8f875f}
+.bag h2{margin-top:.4rem;border-bottom:1px solid #8f9fb2;padding-bottom:.35rem}
+pre{background:#2c2c22;color:var(--paper);padding:1rem;overflow-x:auto}
+a{color:#7a3418}
+a::before{content:'';display:inline-block;width:11px;height:11px;margin-right:.45em;border:2px solid var(--rust);border-radius:50%;border-top-color:transparent;vertical-align:-1px}
+a:hover::before{background:var(--rust)}
+.tab::before{content:none}
+.net{height:26px;margin:2rem 0;background:repeating-linear-gradient(to right,rgba(210,208,180,.5) 0 1px,transparent 1px 22px),repeating-linear-gradient(rgba(210,208,180,.5) 0 1px,transparent 1px 9px);border-top:1px solid rgba(210,208,180,.6);border-bottom:1px solid rgba(210,208,180,.6);transform:perspective(300px) rotateX(4deg)}
+.row{display:flex;gap:1rem;padding:.5rem 0;border-bottom:1px solid #a89f78}
+.row b{font-family:'Digital Numbers',monospace;min-width:86px}
+.alone{border:3px solid var(--rust)}
+footer{padding:1rem 6vw 2.4rem;max-width:1120px;margin:0 auto}
 </style>
 </head>
-<body class="layout-term">
-<!-- This page exists for arte-executable-header-fuzzer alone: the layout (terminal-frame),
-     the colors, and the type were picked for this project, not
-     shared with the other project pages. The code block below is
-     copied from the file it names, line for line. If it looks
-     plain, that is because the project is plain, and I would
-     rather the page match the project than dress it up. The one
-     thing I will not do here is oversell: what this project does
-     not do is stated on the page, not hidden from it. -->
+<body>
 <header class="hero">
-  <img class="logo" src="assets/logo.png" alt="Arte Executable Header Fuzzer logo">
-  <img class="banner" src="assets/banner.png" alt="">
-  <h1>Arte Executable Header Fuzzer</h1>
-  <p class="mono"><a href="https://github.com/ShadowGuard-AI/arte-executable-header-fuzzer">github.com/ShadowGuard-AI/arte-executable-header-fuzzer</a></p>
+<img class="heroimg" src="assets/intro-banner.png" alt="Mist nets at dawn in low scrub: a mesh pocket with dew, an empty holding bag, one small bird low in the net line, no text">
+<div class="in">
+<img class="logo" src="assets/logo.png" alt="An open rust coloured bird band held in banding pliers, above the project name on a ruled ground">
+<h1>arte-executable-header-fuzzer</h1>
+<p>One morning round of the nets, read top to bottom the way a bander walks the line. Things are caught here only so they can be measured, written down, and let go again.</p>
+<nav>
+<a class="tab" href="#does">walk the nets</a>
+<a class="tab" href="#rules">open the ledger</a>
+<a class="tab" href="#open">name the emulator</a>
+<a class="tab" href="#bench">set the rounds</a>
+<a class="tab" href="#bench">set the fuzz share</a>
+<a class="tab" href="#bench">fix the seed</a>
+<a class="tab" href="#release">read the release book</a>
+</nav>
+</div>
 </header>
-
 <main>
-  <section class="rail">
-    <nav aria-label="on this page">
-      <p class="mono"><a href="#run">Run it</a><br>
-      <a href="#files">The files</a><br>
-      <a href="#sheets">The sheets</a><br>
-      <a href="https://github.com/ShadowGuard-AI/arte-executable-header-fuzzer">The repo</a></p>
-    </nav>
-    <div>
-      <p class="lede">Arte Executable Header Fuzzer is one of my projects. The README in the repo is short, so this page sticks to what the files themselves show.</p>
-      <div class="grid">
-        <div class="card pop"><h3>What it is</h3>
-          <p>Arte Executable Header Fuzzer: 5 files, 207 counted
-          lines across Python 186, Markdown 21, Text 0. One job, done in the
-          open, in files you can read.</p></div>
-        <div class="card pop"><h3>The biggest piece</h3>
-          <p><code>main.py</code> carries the most
-          lines. If the project grows, that file is where the growth
-          lands first, for better or worse.</p></div>
-        <div class="card pop"><h3>The honest gap</h3>
-          <p>No test files yet. That is the honest gap, and the roadmap in the visuals folder says what the first one should cover.</p></div>
-      </div>
-      <section id="run">
-        <h2>Run it</h2>
-        <p>The repo README has the exact commands for this one. The
-        shape is the shape for most of my projects: clone it, read the
-        top file first so you know what will happen, then run it on
-        something you do not mind breaking.</p>
-        <p class="mono">$ git clone https://github.com/ShadowGuard-AI/arte-executable-header-fuzzer.git<br>$ cd arte-executable-header-fuzzer</p>
-      </section>
-      
-  <section aria-label="real code">
-    <h2>The code, as it sits in the repo</h2>
-    <p>From <code>main.py</code>, line 11 on. I did
-    not tidy it for the page. What you see is what the file has.</p>
-    <pre class="code"><code>logging.basicConfig(level=logging.INFO, format=&#x27;%(asctime)s - %(levelname)s - %(message)s&#x27;)
-
-def setup_argparse():
-    &quot;&quot;&quot;
-    Sets up the argument parser for the tool.
-    &quot;&quot;&quot;
-    parser = argparse.ArgumentParser(description=&quot;Fuzzes the executable header of a given file to test for parsing vulnerabilities in emulators.&quot;)
-    parser.add_argument(&quot;input_file&quot;, help=&quot;Path to the input executable file.&quot;)
-    parser.add_argument(&quot;-e&quot;, &quot;--emulator&quot;, default=&quot;qemu-system-x86_64&quot;, help=&quot;Path to the emulator executable. Defaults to qemu-system-x86_64.&quot;)
-    parser.add_argument(&quot;-o&quot;, &quot;--output_dir&quot;, default=&quot;fuzzed_files&quot;, help=&quot;Directory to store the fuzzed files. Defaults to fuzzed_files.&quot;)
-    parser.add_argument(&quot;-i&quot;, &quot;--iterations&quot;, type=int, default=10, help=&quot;Number of fuzzing iterations. Defaults to 10.&quot;)
-    parser.add_argument(&quot;-f&quot;, &quot;--fuzz_factor&quot;, type=float, default=0.01, help=&quot;Percentage of bytes to fuzz (0.01 = 1%%). Defaults to 0.01.&quot;)
-    parser.add_argument(&quot;--seed&quot;, type=int, help=&quot;Seed for the random number generator. If not provided, a random seed is used.&quot;)
-    return parser
-
-def is_valid_file(file_path):
-    &quot;&quot;&quot;
-    Checks if a file exists and is a regular file.
-    &quot;&quot;&quot;
-    if not os.path.exists(file_path):
-        logging.error(f&quot;Error: File &#x27;{file_path}&#x27; does not exist.&quot;)
-        return False</code></pre>
-  </section>
-      <section id="files">
-        <h2>The files that matter</h2>
-        <table><tr><th>File</th><th>Lines</th></tr>
-        <tr><td><code>main.py</code></td><td>186</td></tr>
-        <tr><td><code>README.md</code></td><td>21</td></tr>
-        <tr><td><code>banner.png</code></td><td>0</td></tr>
-        <tr><td><code>logo.png</code></td><td>0</td></tr>
-        <tr><td><code>requirements.txt</code></td><td>0</td></tr>
-        </table>
-        <p>Names doing the work: <span class="mono">setup_argparse, is_valid_file, is_executable, fuzz_header, run_emulator, main</span>.</p>
-      </section>
-      <section id="sheets">
-        <h2>Drawn by hand</h2>
-        <p>I sketch my projects on notebook paper so I have to
-        understand them well enough to draw them. The full set,
-        with the counts and how they were counted, is the
-        <a href="https://github.com/ShadowGuard-AI/arte-executable-header-fuzzer/tree/main/arte-executable-header-fuzzer-Visuals">arte-executable-header-fuzzer-Visuals</a>
-        folder in the repo. Nothing is drawn over the binder holes.
-        That is a rule, not a style.</p>
-        <div class="shots">
-          <img src="assets/architecture.png" alt="Hand drawn architecture sheet for Arte Executable Header Fuzzer">
-          <img src="assets/flowchart.png" alt="Hand drawn flowchart sheet for Arte Executable Header Fuzzer">
-          <img src="assets/product-map.png" alt="Hand drawn product map sheet for Arte Executable Header Fuzzer">
-        </div>
-      </section>
-    </div>
-  </section>
+<section class="bag" id="does"><h2>First Halt: What the Tool Actually Does</h2>
+<p>arte-executable-header-fuzzer fuzzes a given file to test for parsing vulnerabilities in emulators. For each iteration it flips bits and replaces bytes at random positions across the whole file, writes the result to the output directory, and runs it through an emulator subprocess, logging any non-zero exit as a possible crash.</p>
+<p>The file header is not parsed or targeted separately, whatever the repository name suggests: the rate of change is set by the fuzz factor, applied across the whole file.</p>
+<p>Its stated focus: tools designed to dynamically emulate and analyze potentially malicious artifacts like shellcode, PE files, or other encoded payloads in a sandboxed environment for behavior analysis and threat assessment.</p>
+</section>
+<div class="net"></div>
+<section class="bag alone" id="rules"><h2>Second Halt: Capture and Release Rules</h2>
+<p>When the fuzz factor is above zero, at least one byte is mutated in every iteration, even for small files.</p>
+<p>A fuzz factor of zero is rejected and the run exits 1.</p>
+</section>
+<div class="net"></div>
+<section class="bag" id="open"><h2>Third Halt: Getting the Station Open</h2>
+<pre>git clone https://github.com/ShadowStrikeHQ/arte-executable-header-fuzzer</pre>
+<pre>./arte-executable-header-fuzzer [params]</pre>
+<p>Honest notice: the documented parameters contain no control that names the input file, even though the opening description speaks of fuzzing a given file, so how the target file is handed to the program is not spelled out in the source.</p>
+<p><a href="https://github.com/ShadowGuard-AI/arte-executable-header-fuzzer">The repository on GitHub</a></p>
+</section>
+<div class="net"></div>
+<section class="bag" id="bench"><h2>Fourth Halt: The Banding Bench</h2>
+<div class="row"><b>-h</b><span>Shows a help message and exits.</span></div>
+<div class="row"><b>-e</b><span>Gives the path to the emulator executable and defaults to qemu-system-x86_64.</span></div>
+<div class="row"><b>-o</b><span>Gives the directory to store the fuzzed files and defaults to fuzzed_files.</span></div>
+<div class="row"><b>-i</b><span>Gives the number of fuzzing iterations and defaults to 10.</span></div>
+<div class="row"><b>-f</b><span>Gives the percentage of bytes to fuzz, written as 0.01 equals 1 percent, and defaults to 0.01.</span></div>
+<div class="row"><b>--seed</b><span>Sets the seed for the random number generator, and if none is provided a random seed is used.</span></div>
+</section>
+<div class="net"></div>
+<section class="bag" id="release"><h2>Fifth Halt: The Release Book</h2>
+<p>A run leaves behind fuzzed files written to the output directory, and a log entry for any non-zero emulator exit treated as a possible crash.</p>
+<p>The source gives no sample log line, no example crash, and no report format beyond that, and this halt says so in those terms.</p>
+<pre>Copyright (c) ShadowStrikeHQ</pre>
+<p>No licence is named on that line.</p>
+</section>
 </main>
-<footer>
-  <p>Arte Executable Header Fuzzer is one of my projects. This page was written
-  from the repo itself on 2026-10-30: the counts are the
-  repo's counts, the code is the repo's code, and the gaps are the
-  repo's gaps.</p>
-</footer>
+<footer><p>Theme: Ornithology Banding Station Mist Nets. Type: Digital Numbers for headings, Barlow for reading, both SIL Open Font License 1.1. No lettering reference was recorded for this project, so none is embedded.</p></footer>
 </body>
 </html>
