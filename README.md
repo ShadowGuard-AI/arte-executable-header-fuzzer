@@ -1,10 +1,10 @@
-![The nets at dawn before any name is spoken: a mesh pocket with dew, an empty holding bag, a bird low in the net line, the station table too distant to read](intro-banner.png)
+![A variegated potted plant with one magenta flower in sharp focus on a damp greenhouse bench, a withered plant in a pot beside it and the glass wall beaded with condensation behind](intro-banner.png)
 
 # arte-executable-header-fuzzer
 
-![First light at the banding station: the net line, a bird in the central pocket, the station table with its open ledger, and the project name on the taped spine label of the ledger](banner.png)
+![A long greenhouse bench of seedlings in black pots under a pitched glass roof, one seedling carrying a single magenta flower near the middle of the row and a wilted plant standing in the right foreground](banner.png)
 
-![An open rust band held in banding pliers above the project name on a ruled plate](logo.png)
+![A small green plant in a terracotta pot sleeved inside a plain glass jar on a greenhouse bench, one magenta flower open at the top, the heading plate](logo.png)
 
 ![Net line in three depths: mist over the scrub, a mesh pocket dipping under a resting bird, dew sliding down the threads](scene.svg)
 
