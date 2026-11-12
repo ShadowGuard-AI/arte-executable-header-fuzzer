@@ -9,8 +9,7 @@
 ![Net line in three depths: mist over the scrub, a mesh pocket dipping under a resting bird, dew sliding down the threads](scene.svg)
 
 
-# arte-Executable-Header-Fuzzer
-Fuzzes a given file to test for parsing vulnerabilities in emulators. For each iteration it flips bits and replaces bytes at random positions across the whole file (the rate is set by the fuzz factor; the file header is not parsed or targeted separately), writes the result to the output directory, and runs it through an emulator subprocess, logging any non-zero exit as a possible crash. When the fuzz factor is above zero, at least one byte is mutated in every iteration, even for small files. A fuzz factor of zero is rejected and the run exits 1. - Focused on Tools designed to dynamically emulate and analyze potentially malicious artifacts like shellcode, PE files, or other encoded payloads in a sandboxed environment for behavior analysis and threat assessment.
+Fuzzes a given file to test for parsing vulnerabilities in emulators. For each iteration it flips bits and replaces bytes at random positions across the whole file (the rate is set by the fuzz factor; the file header is not parsed or targeted separately), writes the result to the output directory, and runs it through an emulator subprocess, logging any non-zero exit as a possible crash. When the fuzz factor is above zero, at least one byte is mutated in every iteration, even for small files. A fuzz factor of zero is rejected and the run exits 1, focusing on tools designed to dynamically emulate and analyze potentially malicious artifacts like shellcode, PE files, or other encoded payloads in a sandboxed environment for behavior analysis and threat assessment.
 
 ![Section divider](sep-light.svg)
 
